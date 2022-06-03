@@ -6,11 +6,15 @@
  * Fourth Task – calculates the average value. All this tasks should print the values to console.
  */
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MultiThreading.Task2.Chaining
 {
     class Program
     {
+        const int MaxValue = 100;
+
         static void Main(string[] args)
         {
             Console.WriteLine(".Net Mentoring Program. MultiThreading V1 ");
@@ -22,8 +26,49 @@ namespace MultiThreading.Task2.Chaining
             Console.WriteLine();
 
             // feel free to add your code
+            var result = Task.Run(() =>
+            {
+                var random = new Random();
+                int[] numbers = new int[10];
+                for (int i = 0; i < numbers.Length; i++)
+                {
+                    numbers[i] = random.Next(MaxValue);
+                }
+                PrintArray(numbers);
+                return numbers;
+            })
+            .ContinueWith(x =>
+            {
+                var randomNumber = new Random().Next(MaxValue);
+                var numbers = x.Result;
+                for (int i = 0; i < numbers.Length; i++)
+                {
+                    numbers[i] *= randomNumber;
+                }
+                PrintArray(numbers);
+                return numbers;
+            })
+            .ContinueWith(x =>
+            {
+                var numbers = x.Result;
+                Array.Sort(numbers);
+                PrintArray(numbers);
+                return numbers;
+            })
+            .ContinueWith(x =>
+            {
+                var numbers = x.Result;
+                var avgValue = (double)numbers.Sum() / numbers.Length;
+                Console.WriteLine(avgValue);
+                return avgValue;
+            });
 
             Console.ReadLine();
+        }
+
+        static void PrintArray(int[] array)
+        {
+            Console.WriteLine(string.Join(", ", array.Select(x => x.ToString()).ToArray()));
         }
     }
 }
