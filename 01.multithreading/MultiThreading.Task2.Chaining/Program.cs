@@ -24,8 +24,7 @@ namespace MultiThreading.Task2.Chaining
             Console.WriteLine("Third Task – sorts this array by ascending.");
             Console.WriteLine("Fourth Task – calculates the average value. All this tasks should print the values to console");
             Console.WriteLine();
-
-            // feel free to add your code
+                        
             var result = Task.Run(() =>
             {
                 var random = new Random();
@@ -50,10 +49,9 @@ namespace MultiThreading.Task2.Chaining
             })
             .ContinueWith(x =>
             {
-                var numbers = x.Result;
-                Array.Sort(numbers);
-                PrintArray(numbers);
-                return numbers;
+                var orderedNumbers = x.Result.OrderBy(num => num).ToArray();
+                PrintArray(orderedNumbers);
+                return orderedNumbers;
             })
             .ContinueWith(x =>
             {
@@ -62,13 +60,19 @@ namespace MultiThreading.Task2.Chaining
                 Console.WriteLine(avgValue);
                 return avgValue;
             });
+            result.Wait();
 
             Console.ReadLine();
         }
 
+        static string ArrayToString(int[] array)
+        {
+            return string.Join(", ", array.Select(x => x.ToString()).ToArray());
+        }
+
         static void PrintArray(int[] array)
         {
-            Console.WriteLine(string.Join(", ", array.Select(x => x.ToString()).ToArray()));
+            Console.WriteLine(ArrayToString(array));
         }
     }
 }
